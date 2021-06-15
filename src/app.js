@@ -82,30 +82,49 @@ function getForecast(response) {
   axios.get(apiUrl).then(displayForecast);
 }
 
+function formatForecastDay(timestamp) {
+  console.log(timestamp);
+  let date = new Date(timestamp * 1000);
+  let day = date.getDay();
+
+  let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return days[day];
+}
+
 function displayForecast(response) {
-  console.log(response);
+  let forecastApi = response.data.daily;
   let forecastELement = document.querySelector("#forecast");
 
   let forecastHTML = `<div class="row">`;
-  let days = ["Thu", "Fri", "Sat", "Sun", "Mon", "Tue"];
 
-  days.forEach(function (day) {
-    forecastHTML =
-      forecastHTML +
-      `
+  forecastApi.forEach(function (forecastDay, index) {
+    if (index < 6) {
+      forecastHTML =
+        forecastHTML +
+        `
               <div class="col-2">
-                <div class="weather-forecast-date">${day}</div>
+                <div class="weather-forecast-date">${formatForecastDay(
+                  forecastDay.dt
+                )}</div>
                 <img
-                  src="http://openweathermap.org/img/wn/50d@2x.png"
+                  src="http://openweathermap.org/img/wn/${
+                    forecastDay.weather[0].icon
+                  }@2x.png"
                   alt=""
                   width="40"
                 />
                 <div class="weather-forecast-temp">
-                  <span class="weather-forecast-temp-max">18°C</span>
-                  <span class="weather-forecast-temp-min">12°C</span>
+                  <span class="weather-forecast-temp-max">${Math.round(
+                    forecastDay.temp.max
+                  )}°C</span>
+                  <span class="weather-forecast-temp-min">${Math.round(
+                    forecastDay.temp.min
+                  )}°C</span>
                 </div>
               </div>
           `;
+    }
   });
 
   forecastHTML = forecastHTML + `</div>`;
@@ -124,5 +143,3 @@ let celsiusLink = document.querySelector("#celsius-link");
 celsiusLink.addEventListener("click", displayCelsiusTemperature);
 
 search("New York");
-
-displayForecast();
